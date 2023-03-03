@@ -8,4 +8,5 @@ struct TokenType {
     string _asset;
     string _category;
     string _type;
+    string _name;
 }

@@ -12,22 +12,23 @@ contract NFT is Events, Strings {
     mapping(address => uint256) private _balance;
 
     function _mint(
+        string memory _name,
         string memory _asset,
         string memory _category,
-        string memory _type
+        string memory _type,
+        address _sender
     ) external returns (uint256) {
         _index += 1;
         _tokens[_index] = TokenType(
             _index,
-            msg.sender,
+            _sender,
             _asset,
             _category,
-            _type
+            _type,
+            _name
         );
-        emit Transfer(address(0), msg.sender, _index);
-        _balance[msg.sender] != 0
-            ? _balance[msg.sender] += 1
-            : _balance[msg.sender] = 1;
+        emit Transfer(address(0), _sender, _index);
+        _balance[_sender] != 0 ? _balance[_sender] += 1 : _balance[_sender] = 1;
         return _index;
     }
 
@@ -39,6 +40,26 @@ contract NFT is Events, Strings {
         return _balance[_owner];
     }
 
+    function transferFrom(
+        address _from,
+        address _to,
+        uint256 _tokenId
+    ) external {
+        require(
+            msg.sender == _tokens[_tokenId]._owner,
+            "Only the owner of the token can initiate a transfer"
+        );
+        require(
+            _from == _tokens[_tokenId]._owner,
+            "The from address does not own the token"
+        );
+        require(_to != address(0), "Cannot transfer to the zero address");
+        _tokens[_tokenId]._owner = _to;
+        _balance[_from] -= 1;
+        _balance[_to] += 1;
+        emit Transfer(_from, _to, _tokenId);
+    }
+
     function getTokens(
         address _own
     ) external view returns (TokenType[] memory) {
@@ -48,12 +69,16 @@ contract NFT is Events, Strings {
         }
         TokenType[] memory _toks = new TokenType[](count);
         uint256 _idx = 0;
-        for (uint256 _indi = 1; _indi < _index; _indi++) {
+        for (uint256 _indi = 1; _indi <= _index; _indi++) {
             if (_tokens[_indi]._owner == _own) {
                 _toks[_idx] = _tokens[_indi];
                 _idx += 1;
             }
         }
         return _toks;
+    }
+
+    function getContractAddress() public view returns (address) {
+        return address(this);
     }
 }
