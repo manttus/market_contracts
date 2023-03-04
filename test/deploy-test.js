@@ -13,14 +13,14 @@ describe("NFT Contract", () => {
     owner: primaryAddress,
   };
 
-  beforeEach(async () => {
+  before(async () => {
     nftContract = await ethers.getContractFactory("NFT");
     nft = await nftContract.deploy();
     await nft.deployed();
   });
 
   it("should mint a nft", async () => {
-    await nft._mint(
+    const tokenId = await nft._mint(
       Token.name,
       Token.asset,
       Token.category,
@@ -33,38 +33,17 @@ describe("NFT Contract", () => {
   });
 
   it("should return the balance of account", async () => {
-    await nft._mint(
-      Token.name,
-      Token.asset,
-      Token.category,
-      Token.type,
-      Token.owner
-    );
     const balance = await nft._balanceOf(Token.owner);
     expect(balance).to.equal(1);
   });
 
   it("should return the owner of nft", async () => {
-    await nft._mint(
-      Token.name,
-      Token.asset,
-      Token.category,
-      Token.type,
-      Token.owner
-    );
     const token = await nft._ownerOf(1);
     const owner = token._owner;
     expect(owner).to.equal(Token.owner);
   });
 
   it("should transfer token from one address to another", async () => {
-    await nft._mint(
-      Token.name,
-      Token.asset,
-      Token.category,
-      Token.type,
-      Token.owner
-    );
     const token = await nft._ownerOf(1);
     const oldOwner = token._owner;
     await nft._transferFrom(oldOwner, secondaryAddress, 1);
@@ -84,14 +63,7 @@ describe("NFT Contract", () => {
   });
 
   it("should return list of nft minted by user", async () => {
-    await nft._mint(
-      Token.name,
-      Token.asset,
-      Token.category,
-      Token.type,
-      Token.owner
-    );
-    const tokens = await nft._getTokens(Token.owner);
-    expect(tokens[0]._owner).to.equal(Token.owner);
+    const tokens = await nft._getTokens(secondaryAddress);
+    expect(tokens[0]._owner).to.equal(secondaryAddress);
   });
 });

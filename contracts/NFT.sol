@@ -5,7 +5,6 @@ pragma solidity ^0.8.17;
 import "./helpers/String.sol";
 import "./types/TokenTypes.sol";
 import "./events/Events.sol";
-import "./helpers/Mints.sol";
 
 contract NFT is Events, Strings {
     uint256 private _index = 0;
