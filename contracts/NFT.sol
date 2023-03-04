@@ -5,9 +5,12 @@ pragma solidity ^0.8.17;
 import "./helpers/String.sol";
 import "./types/TokenTypes.sol";
 import "./events/Events.sol";
+import "./helpers/Mints.sol";
 
 contract NFT is Events, Strings {
     uint256 private _index = 0;
+    mapping(string => bool) private _title;
+    mapping(string => bool) private _assets;
     mapping(uint256 => TokenType) private _tokens;
     mapping(address => uint256) private _balance;
 
@@ -19,6 +22,9 @@ contract NFT is Events, Strings {
         address _sender
     ) external returns (uint256) {
         _index += 1;
+        require(!_assets[_asset] && !_title[_asset], "Dublicate NFT");
+        _title[_name] = true;
+        _assets[_asset] = true;
         _tokens[_index] = TokenType(
             _index,
             _sender,
@@ -32,15 +38,15 @@ contract NFT is Events, Strings {
         return _index;
     }
 
-    function ownerof(uint256 _id) external view returns (TokenType memory) {
+    function _ownerOf(uint256 _id) external view returns (TokenType memory) {
         return _tokens[_id];
     }
 
-    function balanceof(address _owner) public view returns (uint256) {
+    function _balanceOf(address _owner) public view returns (uint256) {
         return _balance[_owner];
     }
 
-    function transferFrom(
+    function _transferFrom(
         address _from,
         address _to,
         uint256 _tokenId
@@ -60,10 +66,10 @@ contract NFT is Events, Strings {
         emit Transfer(_from, _to, _tokenId);
     }
 
-    function getTokens(
+    function _getTokens(
         address _own
     ) external view returns (TokenType[] memory) {
-        uint256 count = balanceof(_own);
+        uint256 count = _balanceOf(_own);
         if (count == 0) {
             return new TokenType[](0);
         }
@@ -78,7 +84,14 @@ contract NFT is Events, Strings {
         return _toks;
     }
 
-    function getContractAddress() public view returns (address) {
+    function _isExists(
+        string memory _asset,
+        string memory _name
+    ) external view returns (bool) {
+        return _assets[_asset] || _title[_name];
+    }
+
+    function _getContractAddress() public view returns (address) {
         return address(this);
     }
 }
