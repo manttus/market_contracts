@@ -19,14 +19,14 @@ contract Market is Events {
 
     function createListing(uint256 tokenId, uint256 price) external {
         require(
-            _nftContract.ownerof(tokenId)._owner == msg.sender,
+            _nftContract._ownerOf(tokenId)._owner == msg.sender,
             "No Token Minted!"
         );
         _index += 1;
         _listing[_index] = ListingType(
             _index,
             price,
-            _nftContract.ownerof(tokenId),
+            _nftContract._ownerOf(tokenId),
             true
         );
     }
@@ -42,7 +42,7 @@ contract Market is Events {
         ListingType storage list = _listing[_listingId];
         require(list._active, "NFT not Listed");
         require(msg.value >= list._price, "Insufficient Balance");
-        _nftContract.transferFrom(
+        _nftContract._transferFrom(
             list._token._owner,
             msg.sender,
             list._token._id
