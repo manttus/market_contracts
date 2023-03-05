@@ -51,10 +51,6 @@ contract NFT is Events, Strings {
         uint256 _tokenId
     ) external {
         require(
-            msg.sender == _tokens[_tokenId]._owner,
-            "Only the owner of the token can initiate a transfer"
-        );
-        require(
             _from == _tokens[_tokenId]._owner,
             "The from address does not own the token"
         );
