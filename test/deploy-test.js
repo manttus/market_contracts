@@ -1,26 +1,26 @@
 const { ethers } = require("hardhat");
 const { expect } = require("chai");
 
+const primaryAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+const secondaryAddress = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
+const Token = {
+  name: "SEWY",
+  asset: "https://www.sewy.com/",
+  category: "Bored APE",
+  type: "ART",
+  owner: primaryAddress,
+};
+
 describe("NFT Contract", () => {
   let nft, nftContract;
-  const primaryAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
-  const secondaryAddress = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
-  const Token = {
-    name: "SEWY",
-    asset: "https://www.sewy.com/",
-    category: "Bored APE",
-    type: "ART",
-    owner: primaryAddress,
-  };
 
   before(async () => {
     nftContract = await ethers.getContractFactory("NFT");
     nft = await nftContract.deploy();
-    await nft.deployed();
   });
 
   it("should mint a nft", async () => {
-    const tokenId = await nft._mint(
+    await nft._mint(
       Token.name,
       Token.asset,
       Token.category,
@@ -65,5 +65,55 @@ describe("NFT Contract", () => {
   it("should return list of nft minted by user", async () => {
     const tokens = await nft._getTokens(secondaryAddress);
     expect(tokens[0]._owner).to.equal(secondaryAddress);
+  });
+});
+
+describe("Marketplace Contract", () => {
+  let nft, nftContract, marketContract, market;
+
+  before(async () => {
+    nftContract = await ethers.getContractFactory("NFT");
+    nft = await nftContract.deploy();
+    marketContract = await ethers.getContractFactory("Market");
+    market = await marketContract.deploy(nft.address);
+    await nft._mint(
+      Token.name,
+      Token.asset,
+      Token.category,
+      Token.type,
+      Token.owner
+    );
+  });
+
+  it("should add nft to the market listing", async () => {
+    await market._createListing(1, ethers.utils.parseEther("5"));
+    const listing = await market._getListings();
+    expect(listing[0]._token._owner).to.equal(Token.owner);
+  });
+
+  it("should get all the market listing", async () => {
+    await market._createListing(1, ethers.utils.parseEther("5"));
+    const listing = await market._getListings();
+    console.log(listing);
+    expect(listing[0]._token._owner).to.equal(Token.owner);
+  });
+
+  // it("should remove nft from the market listing", async () => {
+  //   await market._cancelListing(1);
+  //   const listing = await market._getListings();
+  //   console.log(listing);
+  //   expect(listing.length).to.equal(0);
+  // });
+
+  it("should buy nft from the owner", async () => {
+    // await market._createListing(1, ethers.utils.parseEther("5"));
+    await market._buyToken(1, secondaryAddress, {
+      value: ethers.utils.parseEther("5"),
+      gasLimit: 5000000,
+    });
+    const token = await nft._ownerOf(1);
+    const owner = token._owner;
+    await market._getListings();
+    expect(owner).to.equal(secondaryAddress);
   });
 });
