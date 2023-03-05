@@ -5,7 +5,6 @@ pragma solidity ^0.8.17;
 import "./helpers/String.sol";
 import "./types/TokenTypes.sol";
 import "./events/Events.sol";
-import "./helpers/Mints.sol";
 
 contract NFT is Events, Strings {
     uint256 private _index = 0;
@@ -51,10 +50,6 @@ contract NFT is Events, Strings {
         address _to,
         uint256 _tokenId
     ) external {
-        require(
-            msg.sender == _tokens[_tokenId]._owner,
-            "Only the owner of the token can initiate a transfer"
-        );
         require(
             _from == _tokens[_tokenId]._owner,
             "The from address does not own the token"
