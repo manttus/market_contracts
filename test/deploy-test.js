@@ -11,6 +11,14 @@ const Token = {
   owner: primaryAddress,
 };
 
+const Token2 = {
+  name: "SUIII",
+  asset: "https://www.suii.com/",
+  category: "Bored APE",
+  type: "ART",
+  owner: secondaryAddress,
+};
+
 describe("NFT Contract", () => {
   let nft, nftContract;
 
@@ -86,34 +94,71 @@ describe("Marketplace Contract", () => {
   });
 
   it("should add nft to the market listing", async () => {
-    await market._createListing(1, ethers.utils.parseEther("5"));
+    await market._createListing(
+      1,
+      ethers.utils.parseEther("5"),
+      primaryAddress,
+      {
+        gasLimit: 5000000,
+      }
+    );
     const listing = await market._getListings();
     expect(listing[0]._token._owner).to.equal(Token.owner);
   });
 
   it("should get all the market listing", async () => {
-    await market._createListing(1, ethers.utils.parseEther("5"));
     const listing = await market._getListings();
-    console.log(listing);
     expect(listing[0]._token._owner).to.equal(Token.owner);
   });
 
-  // it("should remove nft from the market listing", async () => {
-  //   await market._cancelListing(1);
-  //   const listing = await market._getListings();
-  //   console.log(listing);
-  //   expect(listing.length).to.equal(0);
-  // });
-
   it("should buy nft from the owner", async () => {
-    // await market._createListing(1, ethers.utils.parseEther("5"));
     await market._buyToken(1, secondaryAddress, {
       value: ethers.utils.parseEther("5"),
       gasLimit: 5000000,
     });
     const token = await nft._ownerOf(1);
     const owner = token._owner;
-    await market._getListings();
     expect(owner).to.equal(secondaryAddress);
+  });
+
+  it("should remove nft from the market listing", async () => {
+    await market._createListing(
+      1,
+      ethers.utils.parseEther("5"),
+      secondaryAddress,
+      {
+        gasLimit: 5000000,
+      }
+    );
+    await market._cancelListing(1, secondaryAddress, {
+      gasLimit: 5000000,
+    });
+    const listing = await market._getListings();
+    expect(listing[0]._active).to.be.false;
+  });
+
+  it("should edit listing", async () => {
+    await market._createListing(
+      1,
+      ethers.utils.parseEther("5"),
+      secondaryAddress,
+      {
+        gasLimit: 5000000,
+      }
+    );
+    await market._editListing(
+      1,
+      1,
+      secondaryAddress,
+      ethers.utils.parseEther("10"),
+      false,
+      {
+        gasLimit: 5000000,
+      }
+    );
+
+    // expect(listing[0]._price).to.equal(
+    //   ethers.utils.parseEther("10").toString()
+    // );
   });
 });
