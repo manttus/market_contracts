@@ -156,9 +156,6 @@ describe("Marketplace Contract", () => {
         gasLimit: 5000000,
       }
     );
-
-    // expect(listing[0]._price).to.equal(
-    //   ethers.utils.parseEther("10").toString()
-    // );
+    const listing2 = await market._getListings();
   });
 });
