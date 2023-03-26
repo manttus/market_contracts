@@ -18,5 +18,8 @@ module.exports = {
       accounts: [PRIVATE_KEY],
       chainId: 5,
     },
+    ganache: {
+      url: "http://127.0.0.1:7545",
+    },
   },
 };
