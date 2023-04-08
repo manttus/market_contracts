@@ -72,6 +72,7 @@ contract Market is Events {
             if (_listing[_indi]._active) {
                 _toks[_idx] = _listing[_indi];
             }
+            _idx += 1;
         }
         return _toks;
     }

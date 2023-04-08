@@ -9,4 +9,5 @@ struct TokenType {
     string _category;
     string _type;
     string _name;
+    string _description;
 }

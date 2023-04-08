@@ -18,6 +18,7 @@ contract NFT is Events, Strings {
         string memory _asset,
         string memory _category,
         string memory _type,
+        string memory _description,
         address _sender
     ) external returns (uint256) {
         _index += 1;
@@ -30,7 +31,8 @@ contract NFT is Events, Strings {
             _asset,
             _category,
             _type,
-            _name
+            _name,
+            _description
         );
         emit Transfer(address(0), _sender, _index);
         _balance[_sender] != 0 ? _balance[_sender] += 1 : _balance[_sender] = 1;
